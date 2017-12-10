@@ -1,0 +1,25 @@
+# Python
+__pycache__
+
+# Projet
+project2_description.pdf
+
+
+# Dataset
+twitter-datasets.zip
+dataset/*
+!dataset/.gitkeep
+preprocessed_dataset/*
+!preprocessed_dataset/.gitkeep
+
+# Models
+models/*
+!models/.gitkeep
+
+# GloVe
+glove/*.pkl
+glove/embeddings*
+glove/*txt
+
+# Submissions
+*.csv
