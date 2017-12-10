@@ -69,13 +69,8 @@ def predict_nn(X, model):
 
 if __name__ == '__main__':
 	# Load dataset
-	train, y = load_dataset(False)
-	ids, test = load_csv_data('dataset/test_data.txt')
-
-	# Preprocessings
-	print('Preprocessings')
-	train = [preprocess(s) for s in train]
-	test = [preprocess(s) for s in test]
+	train, y = load_dataset('preprocessed_dataset/', True)
+	ids, test = load_csv_data('preprocessed_dataset/test_data.txt')
 
 	# Create bags of words
 	vectorizer = train_vectorizer(train + test, True)

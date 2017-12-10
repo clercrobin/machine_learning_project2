@@ -1,6 +1,6 @@
 # Project 2
 
-## Dependencies
+## Dependencies
 
 The code uses :
 * numpy
@@ -29,9 +29,9 @@ In "helpers.py", there are three useful functions :
 
 ## Preprocessings
 
-Currently, I "recreate" some smileys that have been tokenized incorrectly. Moreover, I replace tokens that contain a lot of digits by "<number>".
+Currently, I "recreate" some smileys that have been tokenized incorrectly. Moreover, I replace tokens that contain a lot of digits by "\<number\>".
 
-To preprocess the datasets, you just have to lauch "preprocessings.py".
+To preprocess the datasets, you just have to launch "preprocessings.py".
 
 ## Bag of words
 
