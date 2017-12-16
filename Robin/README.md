@@ -1,9 +1,10 @@
 # Project Text Sentiment Classification
 
 
-1. Add the dataset and the glove
+1. Add the dataset and the glove, and add the pickles folder
 
-Add the kaggle files directly in the main directory, and the glove25 dimensions in the embeddings folder
+Add the kaggle files directly in the main directory, and the glove25 dimensions in the embeddings folder. 
+Add a pickles folder to avoid a crash when you want to save the models
 
 2. Run tweetRepresentation
 
