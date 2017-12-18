@@ -43,19 +43,23 @@ def accuracy_lstm(X, y, model):
 def train_cnn(X, y):
     print('Train CNN')
     # Architecture
+    
+    # CONV(3) - MAX(3) - CONV(3) - MAX(14) - DENSE(128)
+    # CONV(5) - MAX(5) - CONV(5) - MAX(5) - DENSE(128)
+    # CONV(5) - MAX(3) - CONV(5) - MAX(3)
+
     model = Sequential()
-    model.add(Embedding(vocab_size, output_dim=100, input_length=X.shape[1]))
-    model.add(Conv1D(128, 3, activation='relu'))
+    model.add(Embedding(vocab_size, output_dim=200, input_length=X.shape[1]))
+    model.add(Conv1D(128, 5, activation='relu'))
     model.add(MaxPooling1D(3))
-    model.add(Conv1D(128, 3, activation='relu'))
-    #model.add(GlobalAveragePooling1D())
-    model.add(MaxPooling1D(14)) # global max pooling
+    model.add(Conv1D(128, 5, activation='relu'))
+    model.add(MaxPooling1D(3)) # global max pooling
     model.add(Flatten())
     model.add(Dropout(0.5))
     model.add(Dense(128, activation='relu'))
     model.add(Dense(1, activation='sigmoid'))
 
-    print(model.summary())
+    model.summary()
 
     """model.add(Conv1D(64, 3, activation='relu', input_shape=(seq_length, 100)))
     model.add(Conv1D(64, 3, activation='relu'))
@@ -80,38 +84,41 @@ def train_cnn(X, y):
 def accuracy_cnn(X, y, model):
     return model.evaluate(X, y, batch_size=128)
 
+def predict_cnn(X, model):
+    return ((model.predict(X) > 0.5) * 2 - 1).astype(int)
+
 if __name__ == '__main__':
     # Load dataset
-    train, y = load_dataset('preprocessed_dataset/', False)
+    train, y = load_dataset('preprocessed_stanford_dataset/', True)
+    ids, test = load_csv_data('preprocessed_stanford_dataset/test_data.txt')
 
     # Transform tweets to sequences
     print('Create sequences')
-    vocab_size = 100000 # Fix the size of the vocabulary
-    tokenizer = text.Tokenizer(vocab_size)
-    tokenizer.fit_on_texts(train)
+    vocab_size = 200000 # Fix the size of the vocabulary
+    tokenizer = text.Tokenizer(vocab_size, filters='"#$%&()*+,-/:;<=>@[\]^_`{|}~\t\n')
+    tokenizer.fit_on_texts(train + test)
     print('vocab size: {}'.format(vocab_size))
     train = tokenizer.texts_to_sequences(train)
-    X = sequence.pad_sequences(train, maxlen=50) # Fix the number of words
+    X = sequence.pad_sequences(train, maxlen=52) # Fix the number of words
     print(X.shape)
 
     # Create a training and a validation set
     X, y = shuffle(X, y)
-    X_train, y_train, X_valid, y_valid = separate_dataset(X, y, 0.8)
-
-    """# Load and prepare test dataset
-    ids, test = load_csv_data('dataset/test_data.txt')
-    X_test = vectorizer.transform(test)"""
+    X_train, y_train, X_valid, y_valid = separate_dataset(X, y, 0.95)
 
     # Train, evaluate and predict
     model = 'cnn'
     if model == 'lstm':
         model = train_lstm(X_train, y_train)
         print('Accuracy: ', accuracy_lstm(X_valid, y_valid, model))
-        #y = predict_lstm(X_test, model)
     elif model == 'cnn':
         model = train_cnn(X_train, y_train)
         print('Accuracy: ', accuracy_cnn(X_valid, y_valid, model))
-        #y = predict_cnn(X_test, model)
 
     # Create the submission
-    #create_csv_submission(ids, y, 'submission_bow.csv')"""
+    """test = tokenizer.texts_to_sequences(test)
+    X_test = sequence.pad_sequences(test, maxlen=50)
+    model = load_model('models/cnn_embeddings_2')
+    model.summary()
+    y = predict_cnn(X_test, model)
+    create_csv_submission(ids, y, 'submission_embeddings.csv')"""

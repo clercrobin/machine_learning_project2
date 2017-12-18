@@ -40,7 +40,7 @@ def preprocess_dataset(destination_folder):
 		f.close()
 
 	# Small dataset
-	train, y = load_dataset(False)
+	train, y = load_dataset('dataset/', False)
 	train = [preprocess(s) for s in train]
 	train_pos = '\n'.join(train[:100000])
 	train_neg = '\n'.join(train[100000:])
@@ -48,7 +48,7 @@ def preprocess_dataset(destination_folder):
 	write_file('train_neg.txt', train_neg)
 
 	# Full dataset
-	train, y = load_dataset(True)
+	train, y = load_dataset('dataset/', True)
 	train = [preprocess(s) for s in train]
 	train_pos = '\n'.join(train[:1250000])
 	train_neg = '\n'.join(train[1250000:])
