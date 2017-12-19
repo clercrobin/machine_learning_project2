@@ -20,69 +20,69 @@
 \maketitle
 
 \begin{abstract}
-Twitter users produce more than 500 million tweets per day for many years, leading to a huge database of text messages of less than 140 symbols (280 since two months). Those text messages include some usual words, abbreviations due to the size constraint, as well as new invented buzzwords, user tagging, urls, hashtags or even smileys which are often used to express sentiments. We give here an overview of our work in order to predict if a given tweet is more likely to contain a ":)" or a ":(" smiley with two very different approaches : the first one is a traditional approach based on word embeddings and especially the glove model and the second one: TODO JACOB.
+Twitter users produce more than 500 million tweets per day for many years. Thus it gives access to a huge database of text messages of less than 140 symbols. However, these text messages are not written in plain English. They often contain abbreviations due to the size constraint as well as newly invented buzzwords, user tagging, urls, hashtags or even smileys which are often used to express sentiments. We give here an overview of our work in order to predict if a given tweet is more likely to contain a ":)" or a ":(" smiley with two very different approaches: the first one is a traditional approach based on word embeddings and especially the GloVe model and the second one: TODO JACOB.
 \end{abstract}
 
 \section{Introduction}
 
-Everyday people write some text content on the internet, a crucial task is to detect whether it is a positive or negative message, especially for commercial use or rating purpose. A positive message is very highly correlated with a ":)" smiley while a negative message is very highly correlated with a ":(" smiley. This assumption makes it far more easier to label tweets in order to build a training and testing base to train and test a supervised classifier. But it also means that we are not totally sure to do real sentiment analysis. Anyway, deciding whether a message is positive or negative is often a very subjective task ; even the buildings of the datasets are controversial topics
+Everyday people write some text content on the Internet. A crucial task is to detect whether it is a positive or negative message especially for commercial use or rating purpose. A positive message is very highly correlated with a ":)" smiley while a negative message is very highly correlated with a ":(" smiley. This assumption gives us a way to automatically label tweets in order to build a training and testing dataset. But it also means that we are not totally sure to do real sentiment analysis. Anyway, deciding whether a message is positive or negative is often a very subjective task. Indeed, even the method for building the datasets are controversial topics.
 
-\section{Models and Methods}
+\section{Preprocessing}
 \label{sec:structure-paper}
 
-\subsection{Data Exploration and Preprocessing : text normalization}
+\subsection{Data Exploration and Preprocessing: text normalization}
 
 We are provided with a training dataset of 2.5 million labeled tweets. One half (1.25 million) contains ":)" and is tagged +1, and the other half contains ":(" and is tagged -1.
 
 The test database contains 10000 unlabeled tweets.
 
-Twitter is a very young and fast social media, with a strict constraint on the number of symbols : 140 at the time of those tweets. It leads to a totally different kind of texts, words from books, usual subject of natural language processing. The constraint over the number of symbols is one of the main reasons leading to many abbreviations. But in our opinion, the biggest problem comes from the huge variety in people writing without paying attention to their orthography, syntax, or even vocabulary which lead to several writings for the same word, sometimes very distant from each other. The first step will be to normalize those texts at a word level to reduce the word space and perform a kind of clustering of those unusual words.
+Twitter is a very young and fast social media, with a strict constraint on the number of symbols: 140 at the time of these tweets. It leads to a totally different kind of texts plain English which is the usual subject of natural language processing. The constraint over the number of symbols is one of the main reasons leading to many abbreviations. But in our opinion, the biggest problem comes from the huge variety in people's writing. They often do not respect orthography or syntax rules which lead to several spellings for the same word, sometimes very distant from each other. The first step of the preprocessings will be to normalize these texts at a word level to reduce the size of the word space and perform a kind of clustering of these unusual words.
 
-By reading a few tweets we can observe the major differences between those tweets and the usual corpus.
+By reading a few tweets, we can observe the major differences between these tweets and the usual corpus used in NLP such as newspaper articles or books.
 
-An important note on this preprocessing is that in this embedding method, we are very likely to use the pretrained word embeddings given by stansford NLP section, trained on billions of tweets, we want our preprocessing to be as close as possible as them, to have a very high correlation between their vocabulary and ours. We found a short Ruby program doing this preprocessing, and coded it in Python, but some of the parts were impossible due to the tokenization and the lower case preprocessing.
+An important remark on this preprocessing is as we are very likely to use the pretrained word embeddings given by Stanford NLP section, trained on billions of tweets, we want our preprocessing to be as close as possible as them, to have a very high correlation between their vocabulary and ours. We found a short Ruby program doing their preprocessing and translated it in Python. But some parts were to be adapted due to the tokenization and the lower case preprocessing already done on the dataset.
 
 \begin{itemize}
     \item Smileys such as \^{}\^{}  which can be highly correlated to the target labels. However as they are punctuation signs, they are separated by a space due to the preprocessing done on the dataset of this project
-    \item Huge amount of typos (for example piercin -> piercing) that can be found thanks to huge dictionaries found on the internet combined to a correction based on edit distance (insertion, deletion, substitution) but which was too slow on the amount of data we have.
-    \item Hashtags splitting : We simply removed the \# symbol, we wanted to split those sequences of letters on majuscules as they are more likely to begin a new word, unluckily it was impossible after the initial preprocessing of the project. Note that it was one of the steps of the Stanford preprocessing.
-    \item Letter repetitions in some words such as $honeeeyyy$ we want to remove the letters repeated more than 3 times and limit this repetition to 2 times, because in usual words, no letter can be repeated 3 times but can be repeated 2 times. Moreover, as dictionaries cannot easily deal with random number of repetitons of a letter, we made the assumption that two times was the usual typo included in dictionaries
+    \item Huge amount of typos (for example "piercin" instead of "piercing") that can be found thanks to huge dictionaries found on the Internet combined to a correction based on the edit distance (insertion, deletion, substitution) but which was too slow given the amount of data we have.
+    \item Hashtags splitting: We simply removed the \# symbol, we wanted to split these sequences of letters on capital letters as they are more likely to begin a new word. Unluckily, it was impossible after the initial preprocessing of the project. Note that it was one of the steps of the Stanford preprocessing.
+    \item Letter repetitions in some words such as $honeeeyyy$ we want to remove the letters repeated more than 3 times and limit this repetition to 2 times. Because in usual words, no letter can be repeated more than 3 times but can be repeated 2 times. Moreover, as dictionaries cannot easily deal with random number of repetitions of a letter, we made the assumption that two times was the usual typo included in dictionaries.
 \end{itemize}
 
 We also add the usual processing features : 
 \begin{itemize}
-    \item Expanding the usual contractions thanks to a dictionary
-    \item Replace abbreviation thanks to a dictionary, some of them being specific to twitter.
+    \item Expanding the usual contractions thanks to a dictionary. For instance "I'll've" becomes "I will have".
+    \item Replace abbreviation thanks to a dictionary, some of them being specific to Twitter.
 \end{itemize}
 
-Note that we also did not considered at all some methods used for usual text analysis such as Part-Of-Speech tagging because of our dataset. Moreover, removing the stop words was decreasing our accuracy.
+Note that we also did not considered at all some methods used for usual text analysis such as part-of-speech tagging. Moreover, we remark that removing the stop words was decreasing our accuracy so we decided to keep them.
 
-The order in which this preprocessings are done has an importance. For example, we want to remove the letter repetitions before checking in a dictionary as previously stated.
+The order in which these preprocessings are done has an importance. For example, we want to remove the letter repetitions before checking in a dictionary as previously stated.
+
+Finally, as we load first all the positive tweets and then all the negative tweets, the training set, it is very important to shuffle the training set.
+
+One last detail remains, it is how we transform the tweets which are sequences of words to a vectors we can feed classifiers with. In the next sections, we will describe different approaches and models that tackle this issue.
+
+\section{Bag of words}
+
+\section{Convolutional networks and embeddings}
 
 \subsection{Tweet representation}
 
-Thanks to the preprocessing, we have got a clean tweet, that has a far smaller vocabulary than the initial tweets. One of the main constraint to use neural networks for classification is to have a fixed input size. Thanks to the keras model we can easily build those sequences. We set the limit to 35 words as after the preprocessing, the majority of the tweets are under this limit. We do not want to set it to the maximum length of any tweet because it would lead to too many tweets with much zero padding resulting in very low performance.
+Thanks to the preprocessing, we have clean tweets that have a far smaller vocabulary than the initial tweets. One of the main constraint to use neural networks for classification is to have a fixed input size. Thanks to the keras library we can easily build these sequences. We set the limit to 35 words as after the preprocessing, the majority of the tweets are under this limit. We do not want to set it to the maximum length of any tweet because it would lead to too many tweets with much zero padding resulting in very low performance.
 
 Then we inspired ourselves of GloVe and Word2Vec and began all our models with an embedding layer which will learn a vector representation of our words.
 
 Our baseline was done without any initialization.
 
-Then we initialized it with the GloVe trained on 2 billions of tweets from Stanford University, but let the possibility to this layer to train, because thanks to it we would get both a general information about the meaning of this particular word, and a specialization on our dataset. It is also necessary as some of our words were not found in the pretrained GloVe model.
-
+Then we initialized it with the GloVe trained on 2 billions of tweets from Stanford, but let the possibility to this layer to train, because thanks to it we would get both a general information about the meaning of this particular word, and a specialization on our dataset. It is also necessary as some of our words were not found in the pretrained GloVe model.
 
 TODO table of comparison
 
-
-\subsection{Pre modeling}
-
-An important step due to the order of the training set is to shuffle the whole training base and to remember this order.
-
 \subsection{Models}
 
-The majority of the neural network models about natural language processing make a intensive use of convolutional neural networks
-
-One very popular and very efficient class of models to deal with natural language is c. It makes sense because group of words have usually more impact than words, and the position in the tweet of those group of words do not often matter.
-As in the lecture and the whole litteracy on the internet, we add a max pooling layer (subsampling) right after.
+Convolutional neural networks are very popular to deal with natural language. It makes sense because group of words have usually more impact than words, and the position in the tweet of those group of words do not often matter.
+As in the lecture and the whole literature on the Internet, we add a max pooling layer (subsampling) right after a convolution layer.
 
 It is also interesting to stack those convolutional layers as group of words can also have interactions and a meaning.
 
@@ -92,8 +92,10 @@ As we are performing a binary classification, we set the loss function to binary
 
 For the training, we observed than epochs after the $2^{nd}$ do not add much value to our accuracy.
 
+\subsection{Results}
+
 \subsection{Mix our models}
 
-As many of our models had reasonnably high but different results, we thought than an average of those models would perform best than every single model. Instead of a simple average, we chose to implement a classifier, and the very common AdaBoostClassifier was sufficient for this purpose.
+As many of our models had reasonably high but different results, we thought than an average of those models would perform best than every single model. Instead of a simple average, we chose to implement a classifier, and the very common AdaBoostClassifier was sufficient for this purpose.
 
 \end{document}
