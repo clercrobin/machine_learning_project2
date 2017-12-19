@@ -8,6 +8,8 @@
 \usepackage{cprotect}
 \usepackage{tabularx}
 \usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amssymb}
 
 \begin{document}
 \title{Text analysis: Machine Learning Project 2}
@@ -65,6 +67,86 @@ One last detail remains, it is how we transform the tweets which are sequences o
 
 \section{Bag of words}
 
+The first approach, which serves us as a baseline, consists of using one of the most-known and simpler techniques to deal with texts: bag of words.
+
+\subsection{Tweet representation}
+
+The first step is to create a dictionary $\mathcal{D}$. The first approach is to take $\mathcal{D} = \{ t_1, ..., t_D \}$ (size ?) where $t_1$, ..., $t_N$ are all the tokens present in the dataset. Then we can map the tweet $x = (x_1, ..., x_n)$ which is the sequence of tokens $x_1, ..., x_n \in \mathcal{D}$ to a vector of $\mathbb{R}^D$:
+
+$$
+\left(
+\begin{array}{c}
+tf_1(x) \\
+\vdots \\
+tf_i(x) \\
+\vdots \\
+tf_N(x) \\
+\end{array}
+\right)
+$$
+
+where $tf_i(x) = \mid \{j, x_j = t_i \} \mid$ is the number of occurrences of $t_i$ in $x$.
+
+As this vector is sparse, we will use an appropriate memory representation for it.
+
+However by doing this, we will not take into account that the presence of "not" in the string "not good" totally changes the meaning of "good". Hence, we decided to consider all the k-grams for $k \in {1, 2, 3}$ of tokens that is the tuples $(t_1, ..., t_k)$ where $t_1$, $t_2$ and $t_3$ are adjacent in a tweet. However, this time the size of $\mathcal{D}$ is very large (size ?). So we restrict $\mathcal{D}$ to contain only the 100000 most frequent k-grams.
+
+Finally, it can seem to unfair to give the same weight to every k-gram. Some k-gram might be very common like "the" and thus it is not very important. On the contrary, a very rare token might be very important. Thus, we decided to weigh the number of occurrences of a k-gram by its inverse document frequency $idf_i$ defined by:
+
+$$
+idf_i = \log{\frac{N}{\mid \{x, t_i \in x \} \mid}}
+$$
+
+where $N$ is the number of tweets in the dataset.
+
+Thus the vector of $\mathbb{R}^D$ which represents $x$ is now:
+
+$$
+\left(
+\begin{array}{c}
+tf_1(x)idf_1 \\
+\vdots \\
+tf_i(x)idf_i \\
+\vdots \\
+tf_N(x)idf_N \\
+\end{array}
+\right)
+$$
+
+\subsection{Model}
+
+To have a baseline, we decided to start by training a logistic regression model with $L_2$-regularization.
+
+Then, we try to use some feedforward neural networks to have a model with more capacity.
+
+\subsection{Results}
+
+In the table \ref{accuracies_bow}, we report the accuracy on a validation set of logistic regression models and neural networks which take as input vectors created using only 1-grams, 1-grams and 2-grams or 1-grams, 2-grams and 3-grams, with $idf$ weighing or not each time.
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+Model & k-grams & $idf$ & accuracy \\
+\hline
+Logistic regression & 1 & No & \\
+\hline
+Logistic regression & 1, 2 & No & \\
+\hline
+Logistic regression & 1, 2, 3 & No & \\
+\hline
+Logistic regression & 1 & Yes & \\
+\hline
+Logistic regression & 1, 2 & Yes & \\
+\hline
+Logistic regression & 1, 2, 3 & Yes & \\
+\hline
+\end{tabular}
+\label{accuracies_bow}
+\caption{Accuracies of different models using bags of words as input.}
+\end{center}
+\end{table}
+
 \section{Convolutional networks and embeddings}
 
 \subsection{Tweet representation}
@@ -94,8 +176,10 @@ For the training, we observed than epochs after the $2^{nd}$ do not add much val
 
 \subsection{Results}
 
-\subsection{Mix our models}
+\subsection{Aggregation of several models}
 
 As many of our models had reasonably high but different results, we thought than an average of those models would perform best than every single model. Instead of a simple average, we chose to implement a classifier, and the very common AdaBoostClassifier was sufficient for this purpose.
+
+\section{Conclusion}
 
 \end{document}
