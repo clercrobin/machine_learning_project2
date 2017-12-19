@@ -91,7 +91,7 @@ As this vector is sparse, we will use an appropriate memory representation for i
 
 However by doing this, we will not take into account that the presence of "not" in the string "not good" totally changes the meaning of "good". Hence, we decided to consider all the k-grams for $k \in {1, 2, 3}$ of tokens that is the tuples $(t_1, ..., t_k)$ where $t_1$, $t_2$ and $t_3$ are adjacent in a tweet. However, this time the size of $\mathcal{D}$ is very large (size ?). So we restrict $\mathcal{D}$ to contain only the 100000 most frequent k-grams.
 
-Finally, it can seem to unfair to give the same weight to every k-gram. Some k-gram might be very common like "the" and thus it is not very important. On the contrary, a very rare token might be very important. Thus, we decided to weigh the number of occurrences of a k-gram by its inverse document frequency $idf_i$ defined by:
+Finally, it can seem to unfair to give the same weight to every k-gram. Some k-grams might be very common like "the" and thus they are not very important. On the contrary, a very rare token might be very important. Thus, we decided to weigh the number of occurrences of a k-gram by its inverse document frequency $idf_i$ defined by:
 
 $$
 idf_i = \log{\frac{N}{\mid \{x, t_i \in x \} \mid}}
@@ -146,6 +146,8 @@ Logistic regression & 1, 2, 3 & Yes & \\
 \caption{Accuracies of different models using bags of words as input.}
 \end{center}
 \end{table}
+
+We can see two main directions in which we can try to improve. The first one is the representation of words. As our representation is sparse and very high dimensional, we do not take advantage that some words can be semantically near. Embeddings that we are going to use in the next section tackle this issue. The second direction is the sequential aspect of text. The order of words are very important. We try to inject some order using k-grams but due to combinatorial explosion, we can not take many of them. To address this problem, we will use convolutional neural networks.
 
 \section{Convolutional networks and embeddings}
 
