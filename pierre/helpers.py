@@ -30,6 +30,7 @@ def create_csv_submission(ids, y_pred, name):
             writer.writerow({'Id':int(r1),'Prediction':int(r2)})
 
 def load_dataset(folder_path='dataset/', full=False):
+    """ Load either the small or the full dataset. """
     print('Load dataset')
     if full:
         train_pos_file = open(folder_path + 'train_pos_full.txt')

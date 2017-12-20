@@ -14,12 +14,12 @@ def separate_dataset(X, y, ratio):
     nb_train = int(ratio * X.shape[0])
     return  X[:nb_train], y[:nb_train], X[nb_train:], y[nb_train:]
 
-def train_vectorizer(dataset, tfidf=False):
+def train_vectorizer(dataset, tfidf=False, k=3):
 	print('Vectorize')
 	if tfidf:
-		vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1, 3), max_features=10**6)
+		vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1, k), max_features=10**6)
 	else:
-		vectorizer = CountVectorizer(stop_words='english')
+		vectorizer = CountVectorizer(stop_words='english', ngram_range=(1, k), max_features=10**6)
 	vectorizer.fit(dataset)
 	return vectorizer
 
@@ -73,14 +73,14 @@ if __name__ == '__main__':
 	ids, test = load_csv_data('preprocessed_dataset/test_data.txt')
 
 	# Create bags of words
-	vectorizer = train_vectorizer(train + test, True)
+	vectorizer = train_vectorizer(train + test, True, 3)
 	X = vectorizer.transform(train)
 	print(X.shape)
 	X_test = vectorizer.transform(test)
 
 	# Create a training and a validation set
 	X, y = shuffle(X, y)
-	X_train, y_train, X_valid, y_valid = separate_dataset(X, y, 0.8)
+	X_train, y_train, X_valid, y_valid = separate_dataset(X, y, 0.95)
 
 	# Train, evaluate and predict
 	model_type = 'lr'

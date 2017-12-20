@@ -1,57 +1,55 @@
-import numpy as np
-import scipy
+import re
 from helpers import *
 
-def is_number(s):
-	c = sum(c.isdigit() for c in s)
-	return s[0].isdigit() or (c >= len(s) / 2)
+eyes = r'[8:=;]\s*?'
+eyes_with_x = r'([8:=;]|\bx)\s*?'
+noses = r"(['`\-]\s*?)?"
+
+smile = re.compile(r'{}{}([)]+|d+\b)|\^\s*?\^'.format(eyes_with_x, noses))
+lol = re.compile(r'{}{}p+\b'.format(eyes_with_x, noses))
+sad = re.compile(r'{}{}[(]+|-\s*?(_\s*?)+-'.format(eyes_with_x, noses))
+neutral = re.compile(r'{}{}([\\\/*]+|l+\b)'.format(eyes_with_x, noses))
+surprised = re.compile(r'{}{}o+\b|\bo\s*?(_\s*?)+o\b'.format(eyes, noses))
+heart = re.compile(r'<\s*?3')
+number = re.compile(r'\b[-+]?[.\d]*[\d]+[:,.\d]*\b')
+hashtag = re.compile(r'(#\S+)')
+repeat = re.compile(r'(([!?.])\s*?){2,}')
+elong = re.compile(r'\b(\S*?)(?P<l>.)(?P=l){2,}\b')
 
 def preprocess(s):
-	tokens = s.strip().split()
-
-	# Recreate smileys
-	for i, t in enumerate(tokens):
-		# Replace numbers by <number>
-		if is_number(t):
-			tokens[i] = '<number>'
-		# Recreate smileys
-		if t in [':', ';'] and i < len(tokens) - 1 and tokens[i+1] in [')', '(', 'p', 'd', 's', 'o']:
-			tokens[i:i+2] = [t + tokens[i+1]]
-		if t == '-' and i < len(tokens) - 2 and tokens[i+1] == '_' and tokens[i+2] in ['_', '__', '___']:
-			tokens[i:i+3] = ['-_-']
-
-	return ' '.join(tokens)
-
-def hashtags(dataset):
-	d = {}
-	for s in dataset:
-		for t in s.strip().split():
-			if t[0] == '#':
-				if not t in d:
-					d[t] = 1
-				else:
-					d[t] += 1
-	print(sorted(d.items(), key=lambda x: x[1]))
+	""" Apply the preprocessings on a string. """
+	s = smile.sub('<smile>', s)
+	s = lol.sub('<lolface>', s)
+	s = sad.sub('<sadface>', s)
+	s = neutral.sub('<neutralface>', s)
+	s = surprised.sub('<surprisedface>', s)
+	s = heart.sub('<heart>', s)
+	s = number.sub('<number>', s)
+	s = hashtag.sub('<hashtag> \g<1>', s)
+	s = repeat.sub('\g<1> <repeat>', s)
+	s = elong.sub('\g<1>\g<2> <elong>', s)
+	return s
 
 def preprocess_dataset(destination_folder):
+	""" Preprocess the dataset and write the output in destination_folder. """
 	def write_file(filename, s):
 		f = open(destination_folder + filename, 'w')
 		f.write(s)
 		f.close()
 
 	# Small dataset
-	train, y = load_dataset('dataset/', False)
+	train, _ = load_dataset('dataset/', False)
 	train = [preprocess(s) for s in train]
-	train_pos = '\n'.join(train[:100000])
-	train_neg = '\n'.join(train[100000:])
+	train_pos = ''.join(train[:100000])
+	train_neg = ''.join(train[100000:])
 	write_file('train_pos.txt', train_pos)
 	write_file('train_neg.txt', train_neg)
 
 	# Full dataset
-	train, y = load_dataset('dataset/', True)
+	train, _ = load_dataset('dataset/', True)
 	train = [preprocess(s) for s in train]
-	train_pos = '\n'.join(train[:1250000])
-	train_neg = '\n'.join(train[1250000:])
+	train_pos = ''.join(train[:1250000])
+	train_neg = ''.join(train[1250000:])
 	write_file('train_pos_full.txt', train_pos)
 	write_file('train_neg_full.txt', train_neg)
 

@@ -10,8 +10,6 @@ dataset/*
 !dataset/.gitkeep
 preprocessed_dataset/*
 !preprocessed_dataset/.gitkeep
-preprocessed_stanford_dataset/*
-!preprocessed_stanford_dataset/.gitkeep
 
 # Models
 models/*
@@ -21,9 +19,6 @@ models/*
 glove/*.pkl
 glove/embeddings*
 glove/*txt
-glove.twitter.27B.zip
-glove.twitter.27B/*
-!glove.twitter.27B/.gitkeep
 
 # Submissions
 *.csv
