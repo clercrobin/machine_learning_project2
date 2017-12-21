@@ -1,9 +1,10 @@
-# gloveBased method
+# gloveBased method Here must be saved tweetRepresentations.dat from the cloud
 
 
-1. Add the dataset and the glove in the data folder
+1. Add the dataset and the pre trained glove textfile in the data folder
 
-2. Run buildModels.py
+
+2. Run buildModels.py Or add the models from the cloud in pickles and the tweetReprentations.dat in this folder
 
 It will generate the tweet representations in a pickle via the importation of tweetRepresentation.py
 
