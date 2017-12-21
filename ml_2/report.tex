@@ -1,7 +1,7 @@
 \documentclass[10pt,conference,compsocconf]{IEEEtran}
 
 \usepackage{hyperref}
-\usepackage{graphicx}	% For figure environment
+\usepackage{graphicx}   % For figure environment
 \usepackage{color}
 \usepackage{natbib}
 \usepackage{float}
@@ -24,7 +24,7 @@
 \begin{abstract}
 As microblogging services like Twitter are becoming
 more and more influential in today’s globalized world, its facets
-like sentiment analysis are being extensively studied. The sheer volume of data produced daily by its users as well as its overall availability, enable researchers to study this classification problem over massive datasets of messages or tweets. The information collected is however inherently noisy, as phenomena such as linguistic drift are known to be sped up over these social media platforms, therefore hindering the use of standard NLP tools. We present here a combined methodology overcoming some of these issues by training a model to predict whether any given tweet is more likely to contain a happy rather than a sad emoji. Specifically, we show how different pre-processing schemes and text embedding (GloVe, word2vec) methods are crucial in driving up the quality of the  predictions yielded by our models. We eventually achieve accuracies of around ...\% on an already pre-processed dataset of around 2.5 million labeled tweets. 
+like sentiment analysis are being extensively studied. The sheer volume of data produced daily by its users as well as its overall availability, enable researchers to study this classification problem over massive datasets of messages or tweets. The information collected is however inherently noisy, as phenomena such as linguistic drift are known to be sped up over these social media platforms, therefore hindering the use of standard NLP tools. We present here a combined methodology overcoming some of these issues by training a model to predict whether any given tweet is more likely to contain a happy rather than a sad emoji. Specifically, we show how different pre-processing schemes and text embedding (GloVe, word2vec) methods are crucial in driving up the quality of the  predictions yielded by our models. We eventually achieve accuracies of around 86.540\% on an already pre-processed dataset of around 2.5 million labeled tweets by aggregating several approaches.
 \end{abstract}
 
 
@@ -166,8 +166,6 @@ Our baseline was done without any initialization.
 
 Then we initialized it with the GloVe trained on 2 billions of tweets from Stanford, but let the possibility to this layer to train, because thanks to it we would get both a general information about the meaning of this particular word, and a specialization on our dataset. It is also necessary as some of our words were not found in the pretrained GloVe model.
 
-TODO table of comparison
-
 \subsection{Models}
 
 Convolutional neural networks are very popular to deal with natural language. It makes sense because group of words have usually more impact than words, and the position in the tweet of those group of words do not often matter.
@@ -183,6 +181,8 @@ For the training, we observed than epochs after the $2^{nd}$ do not add much val
 
 \subsection{Results}
 
+All different combination of layers led us to accuracies between 85\% and 86\%.
+
 \section{Other Stuff}
 \begin{figure}[h]
     \centering
@@ -193,7 +193,26 @@ For the training, we observed than epochs after the $2^{nd}$ do not add much val
 
 \subsection{Aggregation of several models}
 
-As many of our models had reasonably high but different results, we thought than an average of those models would perform best than every single model. Instead of a simple average, we chose to implement a classifier, and the very common AdaBoostClassifier was sufficient for this purpose.
+As many of our models had reasonably high but different results, we thought than an average or a vote between different would perform best than every single model. Instead of a simple average, we chose to implement a classifier, which takes as features the outputs of all our different models. We tried several approaches for this purpose : 
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+Model & accuracy \\
+\hline
+Random Forests & 81.60\% \\
+\hline
+AdaBoostClassifier & 86.280\% \\
+\hline
+Logistic regression & 86.540\% \\
+\hline
+
+\end{tabular}
+\label{classifier}
+\caption{Accuracies of final classifiers to aggregate our best models.}
+\end{center}
+\end{table}
+
 
 \section{Conclusion}
 
