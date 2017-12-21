@@ -1,19 +1,15 @@
-# Project Text Sentiment Classification
+# gloveBased method
 
 
-1. Add the dataset and the glove, and add the pickles folder
+1. Add the dataset and the glove in the data folder
 
-Add the kaggle files directly in the main directory, and the glove25 dimensions in the embeddings folder. 
-Add a pickles folder to avoid a crash when you want to save the models
+2. Run buildModels.py
 
-2. Run tweetRepresentation
+It will generate the tweet representations in a pickle via the importation of tweetRepresentation.py
 
-It will generate the tweet representations via a pickle
+and load it to train several models, each of them saved via h5
 
-3. Run buildModels
 
-Those representation will train several models, each of them saved via h5
 
-4. Run predictions
 
-It will load the previous models, apply them on the data so that you can train an AdaboostClassifier on to mean the results of those models
+preprocessing.py hosts methods called to clean each tweet to build a better representation

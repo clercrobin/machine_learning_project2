@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-tempdictionary = open('dictionaries/dictionary4.txt', 'rb')
+tempdictionary = open('dictionaries/textNormDict1.txt', 'rb')
 l=[]
 i = 0
 for word in tempdictionary:

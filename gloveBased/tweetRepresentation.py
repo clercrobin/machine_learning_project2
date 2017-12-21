@@ -134,10 +134,10 @@ def buildFeatures():
         }
     contractions_re = re.compile('(%s)' % '|'.join(contractions_dict.keys()))
 
-    positives = open("train_pos_full.txt", 'rb')
-    negatives = open("train_neg_full.txt", 'rb')
-    testfile = open('test_data.txt' ,'rb')
-    glovetwitter25d = open('./embeddings/glovetwitter25d.txt','rb')
+    positives = open("../data/train_pos_full.txt", 'rb')
+    negatives = open("../data/train_neg_full.txt", 'rb')
+    testfile = open('../data/test_data.txt' ,'rb')
+    glovetwitter25d = open('../data/glovetwitter25d.txt','rb')
 
     # Build the 
     xTrain = []
