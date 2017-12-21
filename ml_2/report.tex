@@ -196,6 +196,7 @@ For the training, we observed than epochs after the $2^{nd}$ do not add much val
 \subsection{Results}
 
 All different combination of layers led us to accuracies between 85\% and 86\%.
+The best results were obtained thanks to the following model : The embedding layer then a convolution1D with 256 filters of length 7 then MaxPooling1D(pool length = 5) then a convolution1D with 128 filters of length 5 then MaxPooling1D(pool length = 3) then a convolution1D with 64 filters of length 5 then MaxPooling1D(pool length = 2) 
 
 \section{Other Stuff}
 \begin{figure}[h]
