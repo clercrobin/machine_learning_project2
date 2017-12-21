@@ -37,13 +37,14 @@ def preprocess_dataset(destination_folder):
 		f.write(s)
 		f.close()
 
-	# Small dataset
+	# The small dataset was not added in the final release
+	"""# Small dataset
 	train, _ = load_dataset('dataset/', False)
 	train = [preprocess(s) for s in train]
 	train_pos = ''.join(train[:100000])
 	train_neg = ''.join(train[100000:])
 	write_file('train_pos.txt', train_pos)
-	write_file('train_neg.txt', train_neg)
+	write_file('train_neg.txt', train_neg)"""
 
 	# Full dataset
 	train, _ = load_dataset('dataset/', True)
@@ -53,7 +54,7 @@ def preprocess_dataset(destination_folder):
 	write_file('train_pos_full.txt', train_pos)
 	write_file('train_neg_full.txt', train_neg)
 
-	ids, test = load_csv_data('dataset/test_data.txt')
+	ids, test = load_csv_data('../data/test_data.txt')
 	test = '\n'.join([str(id) + ',' + preprocess(s) for (id, s) in zip(ids, test)])
 	write_file('test_data.txt', test)
 

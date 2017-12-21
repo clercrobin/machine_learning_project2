@@ -33,9 +33,13 @@ if __name__ == '__main__':
     X = X[shuffled]
     y = y[shuffled]
 
-    # Output predictions
+    # Output predictions for the two models
     model = load_model('models/cnn_embeddings_1')
-    model.summary()
     y_train = model.predict(X)
     y_test = model.predict(X_test)
-    pickle.dump((y_train, y_test), open('models/cnn_embeddings_1_output.pickle', 'wb'))
+    pickle.dump((y_train, y_test), open('../gloveBased/pickles/cnn_embeddings_1_output.pickle', 'wb'))
+
+    model = load_model('models/cnn_embeddings_2')
+    y_train = model.predict(X)
+    y_test = model.predict(X_test)
+    pickle.dump((y_train, y_test), open('../gloveBased/pickles/cnn_embeddings_1_output.pickle', 'wb'))

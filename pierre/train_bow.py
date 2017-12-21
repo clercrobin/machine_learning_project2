@@ -45,9 +45,7 @@ def train_nn(X, y):
 	# Architecture
 	inputs = Input(shape=(X.shape[1],), sparse=True)
 	x = Dense(16, activation='relu')(inputs)
-	x = Dropout(0.2)(x)
-	#x = Dense(16, activation='relu')(x)
-	#x = Dropout(0.5)(x)
+	x = Dropout(0.5)(x)
 	predictions = Dense(1, activation='sigmoid')(x)
 	model = Model(inputs=inputs, outputs=predictions)
 

@@ -73,11 +73,3 @@ if __name__ == '__main__':
     # Train, evaluate and predict
     model = train_cnn(X_train, y_train)
     print('Accuracy: ', accuracy_cnn(X_valid, y_valid, model))
-
-    # Create the submission
-    """test = tokenizer.texts_to_sequences(test)
-    X_test = sequence.pad_sequences(test, maxlen=50)
-    model = load_model('models/cnn_embeddings_2')
-    model.summary()
-    y = predict_cnn(X_test, model)
-    create_csv_submission(ids, y, 'submission_embeddings.csv')"""
