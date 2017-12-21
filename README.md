@@ -10,12 +10,15 @@
 5. Run run.py
 
 
-Required libraries : 
-	keras
-	nltk
-	numpy
-	sklearn
-	cPickle
-	sys
-	re
-	itertools
+
+## Dependencies
+
+The code uses :
+	*keras
+	*nltk
+	*numpy
+	*sklearn
+	*cPickle
+	*sys
+	*re
+	*itertools
