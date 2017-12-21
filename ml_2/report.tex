@@ -13,7 +13,7 @@
 \usepackage{enumitem}
 
 \begin{document}
-\title{Text analysis: Machine Learning Project 2}
+\title{Twitter Sentiment Classification: Machine Learning Project 2}
 
 \author{
   Robin Clerc, Pierre Vigier, Jacob Levy Abitbol\\
@@ -64,123 +64,29 @@ We present here the different representations that were studied in order to embe
 
 \subsection{Shallow representations}
 We start off by considering the simplest and more straightforward vector representation of the tweets, yielded by the \textbf{bag-of-words} representation. This approach will actually be used as a baseline, enabling to us the study the performance of more complex methods with respect to itself. The algorithm can be cast as follows: Given a finite-size vocabulary $V$ ($|V|=466885$ in our case), each word is represented as a one-hot encoded vector - a sparse vector in the size of the vocabulary, with 1 in the entry representing the word and 0 in all other entries. The bag-of-words feature vector is then the sum of all one-hot vectors of the words, and therefore has a non-zero value for every word that occurred. One issue with this simplified representation is that the syntax and the order of the words is ignored: "the united states are awesome" and "the awesome states are united" will have an identical vector representation in the embedding space. We therefore added features of higher contiguous sequence of $n$ words, a.k.a \textbf{$n$-grams} (for $n\in \{1,2,3\}$) that could potentially be helpful in identifying certain multiword expressions that are ignored by the unigram model. In order not to have a combinatorial explosion for the input dimension, we restricted our vocabulary dictionary to the top 1M most frequent used tokens.\\
-An additional short coming of this baseline method relates to how it assigns importance to words. So far,  th
-
-
-In the weighted variation, it is a weighted sum according to frequency or TF-IDF scores.
-Term frequency (tf) is basically the output of the BoW model. For a specific document, it determines how important a word is by looking at how frequently it appears in the document. Term frequency measures the local importance of the word. If a word appears a lot of times, then the word must be important. For example, if our document is  “I am a cat lover. I have a cat named Steve. I feed a cat outside my room regularly,” we see that the words with the highest frequency are I, a, and cat. This agrees with our intuition that high term frequency = higher importance since the document is all about my fascination with cats.
-
-The second component of tf-idf is inverse document frequency (idf). For a word to be considered a signature word of a document, it shouldn’t appear that often in the other documents. Thus, a signature word’s document frequency must be low, meaning its inverse document frequency must be high. The idf is usually calculated as
-
-
-
-\subsubsection{Bag of words}
-
-The first approach, which serves us as a baseline, consists of using one of the most-known and simpler techniques to deal with texts: bag of words.
-
-
-The first step is to create a dictionary $\mathcal{D}$. The first approach is to take $\mathcal{D} = \{ t_1, ..., t_D \}$ where $t_1$, ..., $t_N$ are all the tokens present in the dataset. There are 466885 such tokens. Then we can map the tweet $x = (x_1, ..., x_n)$ which is the sequence of tokens $x_1, ..., x_n \in \mathcal{D}$ to a vector of $\mathbb{R}^D$:
-
-$$
-\left(
-\begin{array}{c}
-tf_1(x) \\
-\vdots \\
-tf_i(x) \\
-\vdots \\
-tf_N(x) \\
-\end{array}
-\right)
-$$
-
-where $tf_i(x) = \mid \{j, x_j = t_i \} \mid$ is the number of occurrences of $t_i$ in $x$.
-
-As this vector is sparse, we will use an appropriate memory representation for it.
-
-However by using bags of words of tokens, we will not take into account that the presence of "not" in the string "not good" totally changes the meaning of "good". Hence, we decided to consider all the k-grams for $k \in {1, 2, 3}$ of tokens that is the tuples $(t_1, ..., t_k)$ where $t_1$, $t_2$ and $t_k$ are adjacent in a tweet. However, this time the size of $\mathcal{D}$ is very large. So we restrict $\mathcal{D}$ to contain only the 1000000 most frequent k-grams.
-
-Finally, it can seem to unfair to give the same weight to every k-gram. Some k-grams might be very common like "the" and thus they are not very important. On the contrary, a very rare token might be very important. Thus, we decided to weigh the number of occurrences of a k-gram by its inverse document frequency $idf_i$ defined by:
-
-$$
-idf_i = \log{\frac{N}{\mid \{x, t_i \in x \} \mid}}
-$$
-
-where $N$ is the number of tweets in the dataset.
-
-Thus the vector of $\mathbb{R}^D$ which represents $x$ is now:
-
-$$
-\left(
-\begin{array}{c}
-tf_1(x)idf_1 \\
-\vdots \\
-tf_i(x)idf_i \\
-\vdots \\
-tf_N(x)idf_N \\
-\end{array}
-\right)
-$$
-
-\subsubsection{Model}
-
-To have a baseline, we decided to start by training a logistic regression model with $L_2$-regularization.
-
-Then, we try to use some feedforward neural networks to have a model with more capacity.
-
-\subsection{Results}
-
-In the table \ref{accuracies_bow}, we report the accuracy on a validation set of logistic regression models and neural networks which take as input vectors created using only 1-grams, 1-grams and 2-grams or 1-grams, 2-grams and 3-grams, with $idf$ weighing or not each time.
-
-In these experiments, we use 95\% of the dataset as training set and the remaining 5\% as validation set.
-\begin{figure}
+An additional shortcoming of this baseline method relates to the way it assigns weight to words. So far, the importance of a word is directly related to its frequency in the tweet. However, this will biaised our results as the most frequent words are actually conveying the least amount information about the user. A convenient workaround is then to  down/upweight the frequency of a given token by its overall frequency in the whole Twitter corpus by introducing the\textbf{ TF-IDF} scores defined by:
+$$ tfidf_i =tf_i(x)\dot \log{\frac{N}{\mid \{x, t_i \in x \} \mid}} $$
+where $tf$ indicates the frequency of the word in a given tweet. The idf part will be low for words that are generally common in all documents (e.g. function words like in, I, the) and do not indicate a specific topic and will enable us to recover more significant signature words. \\
+\begin{figure}[h]
     \centering
     \includegraphics[width=\linewidth]{imag/idf.pdf}
     \caption{Accuracies of logistic regression using bags of words as input.}
     \label{fig:my_label}
 \end{figure}
-%\begin{table}
-%\begin{center}
-%\begin{tabular}{|c|c|c|c|}
-%\hline
-%Model & k-grams & $idf$ & accuracy \\
-%\hline
-%Logistic regression & 1 & No & 80.80\% \\
-%\hline
-%Logistic regression & 1, 2 & No & 83.35\% \\
-%\hline
-%Logistic regression & 1, 2, 3 & No & 83.12\% \\
-%\hline
-%Logistic regression & 1 & Yes & 80.63\% \\
-%\hline
-%Logistic regression & 1, 2 & Yes & 83.14\% \\
-%\hline
-%Logistic regression & 1, 2, 3 & Yes & 83.49\% \\
-%\hline
-%\end{tabular}
-%\label{accuracies_bow}
-%\caption{Accuracies of different models using bags of words as input.}
-%\end{center}
-%\end{table}
 
-We can remark that considering orders in the tokens improves the accuracy by almost 3\%.
-
-Finally, we can see two main directions in which we can try to improve. The first one is the representation of words. As our representation is sparse and very high dimensional, we do not take advantage that some words can be semantically near. Embeddings that we are going to use in the next section tackle this issue. The second direction is the sequential aspect of text. Considering, the order of words seems very important. We inject some order using k-grams but due to combinatorial explosion, we can not take many of them. To address this problem, we will use convolutional neural networks.
-
+We fed this baseline data to a logistic regression classifier with  $L_2$-regularization. The accuracy for each of the input features (1-grams, 1-grams and 2-grams or 1-grams, 2-grams and 3-grams with and without tf-idf weighting) are given in Figure \ref{fig:my_label}. The model was trained using 95\% of the data while validating it in the remaining 5 \% of the samples. We  notice that the baseline performance in this classification problem is already reasonably high the occurrence of simple words is already quite a good predictor for assigning sentiment to tweets. Moreover, the adding of higher features only seems to increase the performance marginally (1\% for the tf-idf regularization and 3\% for the 1,2,3-gram addition). Similar results were obtained with a single-layer neural network with a softmax activation. We now proceed  to explore how higher level features as well as deeper and more complex learning models might enhance our ability to predict sentiment in the provided dataset.
 
 \subsection{Deep representations}
-\section{Convolutional networks and embeddings}
+Since the seminal paper of Mikolov, there has been a growing interest in word embedding methods. Through the latter, words are projected in a lower dimensional dense vector space via a hidden layer of a neural network  (word2vec) or as an output of some optimization problem on the word co-ocurrence matrix (GloVe). 
+In both cases, the learned representation tries to capture the different word contexts in which a given a word can appear in, hence enabling, that words in similar context will be embedded close to each other in the representation space. The main advantage of choosing this deeper representation is the dimensionality of the resulting data: every word will now be represented by a dense vector in $\mathbb{R}^D$ where $D$ is the dimension of the embedding. We are specifically relyin gon two separate sets of pre-trained embeddings, trained respectivelly GloVe and skip-gram with negative sampling (wordvec).
+\begin{description}
+\item[GloVe pre-trained embeddings:] We rely on a pre-trained set of word embeddings published by the Stanford NLP group. These are trained with a corpus of 2 billions tweets containing around 1.2 millions words covering the quasi-totality of the words in our cleansed vocabulary (words that aren't were filtered out).
+\item[Word2Vec pre-trained embeddings:] Unlike the released GloVe dataset, most of the word2vec learned embeddings were trained using news corpus datasets. We hence relied on a dataset released by the NLP group at Ghent's University. As in the aforementioned case, most of the encountered words in our dataset were already present in the pre-trained embedding's vocabulary.
+\end{description}
+These deep representations enable us to build a word representation for all the words in our vocabulary. Some level of aggregation is however needed in order to compute a representation of the tweets that can be fed to a classifier during the learning phase. Different treatments are considered and included. In the first case, tweets are padded to a maximal length of 35 words and the GloVe embeddings for each of the words are concatenated together via ther Keras \verb+Embedding+ layer functionality. In the second case, defined for the word2vec embedding, the feature representation for each tweet is obtained by summing over each of the embedding dimensions across all words. 
 
-\subsection{Tweet representation}
-
-Thanks to the preprocessing, we have clean tweets that have a far smaller vocabulary than the initial tweets. One of the main constraint to use neural networks for classification is to have a fixed input size. Thanks to the keras library we can easily build these sequences. We set the limit to 35 words as after the preprocessing, the majority of the tweets are under this limit. We do not want to set it to the maximum length of any tweet because it would lead to too many tweets with much zero padding resulting in very low performance.
-
-Then we inspired ourselves of GloVe and Word2Vec and began all our models with an embedding layer which will learn a vector representation of our words.
-
-Our baseline was done without any initialization.
-
-Then we initialized it with the GloVe trained on 2 billions of tweets from Stanford, but let the possibility to this layer to train, because thanks to it we would get both a general information about the meaning of this particular word, and a specialization on our dataset. It is also necessary as some of our words were not found in the pretrained GloVe model.
-
-\subsection{Models}
+\section{Classification Models}
+Once the feature engineering step is done, we set out to try different classifiers in order to examine which is best suited for our classifcation problem. Experiments were done with Random Forest, XGBoost, Character Level  LSTM, Deep Neural Networks as well as Convolutional Neural Networks. Given the non-finetuned performance of all these methods on an initial run, we focused on exploring the two latter for our final classification run.
 
 Convolutional neural networks are very popular to deal with natural language. It makes sense because group of words have usually more impact than words, and the position in the tweet of those group of words do not often matter.
 As in the lecture and the whole literature on the Internet, we add a max pooling layer (subsampling) right after a convolution layer.
@@ -193,10 +99,15 @@ As we are performing a binary classification, we set the loss function to binary
 
 For the training, we observed than epochs after the $2^{nd}$ do not add much value to our accuracy.
 
-\subsection{Results}
+
 
 All different combination of layers led us to accuracies between 85\% and 86\%.
 The best results were obtained thanks to the following model : The embedding layer then a convolution1D with 256 filters of length 7 then MaxPooling1D(pool length = 5) then a convolution1D with 128 filters of length 5 then MaxPooling1D(pool length = 3) then a convolution1D with 64 filters of length 5 then MaxPooling1D(pool length = 2) 
+
+
+\subsection{Results}
+
+All different combination of layers led us to accuracies between 85\% and 86\%.
 
 \section{Other Stuff}
 \begin{figure}[h]
