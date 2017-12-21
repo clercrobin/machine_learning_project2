@@ -38,7 +38,7 @@ def train_cnn(X, y):
     model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
 
     # Training
-    for epoch in range(10):
+    for epoch in range(2):
         model.fit(X, y, epochs=1, batch_size=128)
         print('Validation: ', model.evaluate(X_valid, y_valid, batch_size=128))
         model.save('models/cnn_embeddings_{}'.format(epoch+1))

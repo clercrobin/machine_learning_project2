@@ -4,8 +4,7 @@
 
 2. Run gloveBased/buildModels.py
 
-3. Run ... TODO AJOUTEZ VOS FICHIERS A EXECUTER
-
+3. Run pierre/preprocessings.py, pierre/train_embeddings.py, pierre/aggregate.py
 
 5. Run run.py
 
