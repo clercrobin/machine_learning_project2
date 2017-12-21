@@ -8,6 +8,7 @@
 \usepackage{cprotect}
 \usepackage{tabularx}
 \usepackage{multirow}
+\usepackage{subcaption}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{enumitem}
@@ -69,54 +70,85 @@ $$ tfidf_i =tf_i(x)\dot \log{\frac{N}{\mid \{x, t_i \in x \} \mid}} $$
 where $tf$ indicates the frequency of the word in a given tweet. The idf part will be low for words that are generally common in all documents (e.g. function words like in, I, the) and do not indicate a specific topic and will enable us to recover more significant signature words. \\
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\linewidth]{imag/idf.pdf}
+    \includegraphics[width=0.9\linewidth]{imag/idf.pdf}
     \caption{Accuracies of logistic regression using bags of words as input.}
     \label{fig:my_label}
 \end{figure}
 
-We fed this baseline data to a logistic regression classifier with  $L_2$-regularization. The accuracy for each of the input features (1-grams, 1-grams and 2-grams or 1-grams, 2-grams and 3-grams with and without tf-idf weighting) are given in Figure \ref{fig:my_label}. The model was trained using 95\% of the data while validating it in the remaining 5 \% of the samples. We  notice that the baseline performance in this classification problem is already reasonably high the occurrence of simple words is already quite a good predictor for assigning sentiment to tweets. Moreover, the adding of higher features only seems to increase the performance marginally (1\% for the tf-idf regularization and 3\% for the 1,2,3-gram addition). Similar results were obtained with a single-layer neural network with a softmax activation. We now proceed  to explore how higher level features as well as deeper and more complex learning models might enhance our ability to predict sentiment in the provided dataset.
+We fed this baseline data to a logistic regression classifier with  $L_2$-regularization. The accuracy for each of the input features (1-grams, 1-grams and 2-grams or 1-grams, 2-grams and 3-grams with and without tf-idf weighting) are given in Figure \ref{fig:my_label}. The model was trained using 95\% of the data while validating it in the remaining 5 \% of the samples. We  notice that the baseline performance in this classification problem is already reasonably high the occurrence of simple words is already quite a good predictor for assigning sentiment to tweets. Moreover, the adding of higher features only seems to increase the performance marginally (1\% for the tf-idf regularization and 3\% for the 1,2,3-gram addition). Similar results were obtained with a single-layer neural network with a softmax activation. Actually, by defining the polarity of a word by the frequency of usage of that given word within a positive tweet (1 if only used within positive tweets, 0 if only within negative ones),this last result becomes quite understandable:
+
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.25\textwidth}
+        \includegraphics[scale=0.5]{imag/pos.png}
+        \caption{}
+        \label{pos}
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.25\textwidth}
+        \includegraphics[scale=0.54]{imag/neg.png}
+        \caption{}
+        \label{neg}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.5\textwidth}
+        \includegraphics[scale=0.4]{imag/kde_polarity.pdf}
+        \caption{}
+        \label{polarity1}
+    \end{subfigure}
+    \caption{a: Top 3 positive polarity words , b: Top 3 negative polarity words, c: polarity density distribution over the observed vocabulary}
+    \label{polarity}
+\end{figure}
+
+Hence, as we can see in Figure \ref{polarity}, most words are clearly associated to a particular polarity which significantly eases any prediciton task using atomic words features such as BOW. 
+We now proceed  to explore how higher level features as well as deeper and more complex learning models might enhance our ability to predict sentiment in the provided dataset.
 
 \subsection{Deep representations}
 Since the seminal paper of Mikolov, there has been a growing interest in word embedding methods. Through the latter, words are projected in a lower dimensional dense vector space via a hidden layer of a neural network  (word2vec) or as an output of some optimization problem on the word co-ocurrence matrix (GloVe). 
-In both cases, the learned representation tries to capture the different word contexts in which a given a word can appear in, hence enabling, that words in similar context will be embedded close to each other in the representation space. The main advantage of choosing this deeper representation is the dimensionality of the resulting data: every word will now be represented by a dense vector in $\mathbb{R}^D$ where $D$ is the dimension of the embedding. We are specifically relyin gon two separate sets of pre-trained embeddings, trained respectivelly GloVe and skip-gram with negative sampling (wordvec).
+In both cases, the learned representation tries to capture the different word contexts in which a given a word can appear in, hence enabling, that words in similar context will be embedded close to each other in the representation space. The main advantage of choosing this deeper representation is the dimensionality of the resulting data: every word will now be represented by a dense vector in $\mathbb{R}^D$ where $D$ is the dimension of the embedding. We are specifically relying on two separate sets of pre-trained embeddings, trained respectivelly GloVe and skip-gram with negative sampling (wordvec).
 \begin{description}
-\item[GloVe pre-trained embeddings:] We rely on a pre-trained set of word embeddings published by the Stanford NLP group. These are trained with a corpus of 2 billions tweets containing around 1.2 millions words covering the quasi-totality of the words in our cleansed vocabulary (words that aren't were filtered out).
-\item[Word2Vec pre-trained embeddings:] Unlike the released GloVe dataset, most of the word2vec learned embeddings were trained using news corpus datasets. We hence relied on a dataset released by the NLP group at Ghent's University. As in the aforementioned case, most of the encountered words in our dataset were already present in the pre-trained embedding's vocabulary.
+\item[GloVe pre-trained embeddings:] We rely on a pre-trained set of word embeddings published by the Stanford NLP group. These are trained with a corpus of 2 billions tweets containing around 1.2 millions words covering the quasi-totality of the words in our cleansed vocabulary (words that aren't were filtered out, $D=25$).
+\item[Word2Vec pre-trained embeddings:] Unlike the released GloVe dataset, most of the word2vec learned embeddings were trained using news corpus datasets. We hence relied on a dataset released by the NLP group at Ghent's University $D=400$). As in the aforementioned case, most of the encountered words in our dataset were already present in the pre-trained embedding's vocabulary.
 \end{description}
-These deep representations enable us to build a word representation for all the words in our vocabulary. Some level of aggregation is however needed in order to compute a representation of the tweets that can be fed to a classifier during the learning phase. Different treatments are considered and included. In the first case, tweets are padded to a maximal length of 35 words and the GloVe embeddings for each of the words are concatenated together via ther Keras \verb+Embedding+ layer functionality. In the second case, defined for the word2vec embedding, the feature representation for each tweet is obtained by summing over each of the embedding dimensions across all words. 
+These deep representations enable us to build a word representation for all the words in our vocabulary. Some level of aggregation is however needed in order to compute a representation of the tweets that can be fed to a classifier during the learning phase. Different treatments are considered and included. In the first case, tweets are padded to a maximal length of $K_{\text{max}}=35$ words and the GloVe embeddings for each of the words are concatenated together via ther Keras \verb+Embedding+ layer functionality. In the second case, defined for the word2vec embedding, the feature representation for each tweet is obtained by summing over each of the embedding dimensions across all words. 
 
 \section{Classification Models}
-Once the feature engineering step is done, we set out to try different classifiers in order to examine which is best suited for our classifcation problem. Experiments were done with Random Forest, XGBoost, Character Level  LSTM, Deep Neural Networks as well as Convolutional Neural Networks. Given the non-finetuned performance of all these methods on an initial run, we focused on exploring the two latter for our final classification run.
+Before actually starting to study model performances it's interesting to visualize the dataset in order to check whether there are some clearly observable patterns the algorithms should recognize. We therefore start off my mapping the dense embedding vectors of our tweets to a 2D space using the MultiCore TSNE package. Figure \ref{input} shows the visualization of labeled tweets embedded with the aforementioned word2vec pre-trained model. We can notice the clear absence of any delimiting barrier between positive and negative tweets as clusters of positive and negative tweets seem to overlap in the TSNE mapping space. It is therefore interest to introduce more complex models in order to deal with these higher-level features.\\
 
-Convolutional neural networks are very popular to deal with natural language. It makes sense because group of words have usually more impact than words, and the position in the tweet of those group of words do not often matter.
-As in the lecture and the whole literature on the Internet, we add a max pooling layer (subsampling) right after a convolution layer.
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.5\textwidth}
+        \includegraphics[scale=0.15]{imag/tweets_tsne.png}
+        \caption{Input}
+        \label{input}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.5\textwidth}
+        \includegraphics[scale=0.15]{imag/non_tweets_tsne.png}
+        \caption{Hidden Layer}
+        \label{hidden}
+    \end{subfigure}
+    \caption{TSNE visualization of embedded tweets by polarity through the network}
+    \label{Corr}
+\end{figure}
 
-It is also interesting to stack those convolutional layers as group of words can also have interactions and a meaning.
-
-We end our networks by a fully connected layer and a final layer with a single neuron performing the classification, that is to say returning a value between 0 and 1 which can also be interpreted as a confidence, even if we have a sigmoid the last layer.
-
-As we are performing a binary classification, we set the loss function to binary crossentropy. We also use the Adam optimizer, described as very efficient for binary classification.
-
-For the training, we observed than epochs after the $2^{nd}$ do not add much value to our accuracy.
+Once the feature engineering step is done, we set out to try different classifiers in order to examine which is best suited for our classifcation problem. Experiments were done with Random Forest, XGBoost, Character Level  LSTM, Deep Neural Networks as well as Convolutional Neural Networks. Given the non-finetuned performance of all these methods on an initial run, we focused on exploring the two latter for our final classification run. \\
+Mainly known for their recent success in image recognition problems, CNNs have also become a widespread tool in many NLP tasks. We train a CNN on our GloVe emebeddings where each tweets is represented as a tensor of dimensions  $D_{\text{GloVe}}\times K_{\text{max}}$ by stacking convolutional layers with max-pooling layers (in order to introduce word-interaction features in the network) with a fully connected layer and and a sigmoid activation function to predict class probabilities. \\
+A separate deep neural network (DNN) was applied to the word2vec embedding data by stacking densely connected layers. CNNs were in this case no longer useful as the sense of word ordering disappeared when the embedded vectors of each word were averaged. It is actually interesting to see how the progressive introduction of non linear functions (ReLU) in the network allows to generate increasingly separable custer of samples as we can see in Figure \cite{hidden}, where TSNE was applied to the output of the central hidden layer of the DNN. Netowrk architectures are summed up below:
 
 
-
-All different combination of layers led us to accuracies between 85\% and 86\%.
-The best results were obtained thanks to the following model : The embedding layer then a convolution1D with 256 filters of length 7 then MaxPooling1D(pool length = 5) then a convolution1D with 128 filters of length 5 then MaxPooling1D(pool length = 3) then a convolution1D with 64 filters of length 5 then MaxPooling1D(pool length = 2) 
 
 
 \subsection{Results}
 
+
+As we are performing a binary classification, we set the loss function to binary crossentropy. We also use the Adam optimizer, described as very efficient for binary classification.
+
+For the training, we observed than epochs after the $2^{nd}$ do not add much value to our accuracy. All different combination of layers led us to accuracies between 85\% and 86\%.
+The best results were obtained thanks to the following model : The embedding layer then a convolution1D with 256 filters of length 7 then MaxPooling1D(pool length = 5) then a convolution1D with 128 filters of length 5 then MaxPooling1D(pool length = 3) then a convolution1D with 64 filters of length 5 then MaxPooling1D(pool length = 2) 
+
+
+
 All different combination of layers led us to accuracies between 85\% and 86\%.
-
 \section{Other Stuff}
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\linewidth]{imag/tweets_tsne.png}
-    \caption{TSNE visualization of embedded tweets by polarity}
-    \label{fig:my_label}
-\end{figure}
-
 \subsection{Aggregation of several models}
 
 As many of our models had reasonably high but different results, we thought than an average or a vote between different would perform best than every single model. Instead of a simple average, we chose to implement a classifier, which takes as features the outputs of all our different models. We tried several approaches for this purpose : 
